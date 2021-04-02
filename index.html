@@ -34,7 +34,7 @@
 			{{ initiative }}
 		</div>
 		
-		<div class="col" @dragover.prevent="preview($event, initiative)" @dragenter.prevent @dragleave="cancelPreview" @drop='onDrop($event, initiative)' v-on:click="logPosition">
+		<div class="col" @dragover.prevent="preview($event, initiative)" @dragenter.prevent @dragleave="cancelPreview" @drop='onDrop($event, initiative)'>
 		
 			<div v-for="(creature, index) in combat.initiatives[initiative]" v-bind:data-index="index">
 				

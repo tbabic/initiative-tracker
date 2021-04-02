@@ -103,11 +103,6 @@ var homeComponent = new Vue({
 		startDrag : function (event, initiativeScore, creatureIndex) {
 			this.dragAndDropData.source.initiativeScore = initiativeScore;
 			this.dragAndDropData.source.creatureIndex = creatureIndex;
-			console.log("start drag");
-		},
-		
-		logPosition : function(ev) {
-			console.log(ev.clientY);
 		},
 		
 		deleteCreature : function (initiativeScore, creatureIndex) {
@@ -119,8 +114,6 @@ var homeComponent = new Vue({
 		},
 		
 		preview : function(ev, initiativeScore) {
-			
-			console.log(initiativeScore);
 			
 			if (Date.now() < this.dragAndDropData.preview.lastPreviewAt+100) {
 				return;
@@ -155,7 +148,6 @@ var homeComponent = new Vue({
 		},
 		
 		onDrop : function (ev, initiativeScore, creatureIndex) {
-			console.log(ev);
 			
 			this.cancelPreview();
 			

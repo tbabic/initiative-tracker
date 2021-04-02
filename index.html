@@ -23,7 +23,7 @@
 					INITIATIVE
 			</div>
 			<div class = "col">
-				<button class="btn btn-primary" data-toggle="modal" data-target="#addCreatureModal" >+</button>
+				<button class="btn btn-primary" data-toggle="modal" data-target="#addCreatureModal">+</button>
 			</div>
 		</div>
 	</div>
@@ -76,7 +76,7 @@
 		
 	</div>
 	
-	<div class="modal fade" id="addCreatureModal" role="dialog">
+	<div class="modal fade" id="addCreatureModal" role="dialog" v-on:keyup.enter="enterPressedUp($event)" v-on:keydown.enter="enterPressedDown($event)">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content"><form>
 				<div class="modal-header">
@@ -90,7 +90,7 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text">Name</span>
 						</div>
-						<input v-model="newCreature.name" type="text" class="form-control">
+						<input id="new-creature-name-id" v-model="newCreature.name" type="text" class="form-control">
 					</div>
 					
 					<div class="input-group mb-3">
@@ -104,13 +104,14 @@
 						<div class="input-group-prepend">
 							<span class="input-group-text">Number</span>
 						</div>
-						<input v-model="newCreature.number" type="number" class="form-control">
+						<input v-model="newCreature.number" type="number" class="form-control" v-on:keydown.tab="focusNewCreature" >
 					</div>
 				
 				</div>
 				<div class="modal-footer">
-					<button type="submit" class="btn btn-primary" data-dismiss="modal" v-on:click="addCreature" >Add</button>
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary" data-dismiss="modal" v-on:click="addCreature" title="Save new creature and close this modal, shortcut: ENTER" >Add</button>
+					<button type="button" class="btn btn-primary" v-on:click="addCreature" title="Save creature and immediately start creating new, shortcut: SHIRT+ENTER">Next</button>
+					<button id="close-new-creature" type="button" class="btn btn-secondary" data-dismiss="modal" title="Close this modal, shortcut: ESCAPE">Close</button>
 				</div></form>
 			</div>
 		</div>

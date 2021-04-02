@@ -202,6 +202,28 @@ var homeComponent = new Vue({
 
 			this.dragAndDropData.source.initiativeScore = null;
 			this.dragAndDropData.source.creatureIndex = null;
+		},
+		enterPressedDown : function(ev) {
+			if (ev.shiftKey) {
+				ev.preventDefault();
+				this.addCreature();
+			}
+		},
+		enterPressedUp : function(ev) {
+			if (ev.shiftKey) {
+				ev.preventDefault();
+			}
+		},
+		
+		focusNewCreature : function(event) {
+			$("#new-creature-name-id").focus();
+			if (event != undefined) {
+				event.preventDefault();
+			}
+		},
+		
+		closeNewCreature : function() {
+			$("#close-new-creature").click();
 		}
 	},
 	computed : {
@@ -217,6 +239,11 @@ var homeComponent = new Vue({
 		},
 	},
 	mounted : function () {
+		
+		$( "#addCreatureModal" ).on('shown.bs.modal', () => {
+			this.focusNewCreature();
+		});
+		
 		/*this.newCreature.name = "test1";
 		this.addCreature();
 		this.newCreature.name = "test2";

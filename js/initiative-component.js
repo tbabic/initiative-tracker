@@ -222,6 +222,13 @@ var homeComponent = new Vue({
 			}
 		},
 		
+		focusEditCreature : function(event) {
+			$("#edit-creature-name-id").focus();
+			if (event != undefined) {
+				event.preventDefault();
+			}
+		},
+		
 		closeNewCreature : function() {
 			$("#close-new-creature").click();
 		}
@@ -242,6 +249,10 @@ var homeComponent = new Vue({
 		
 		$( "#addCreatureModal" ).on('shown.bs.modal', () => {
 			this.focusNewCreature();
+		});
+		
+		$( "#editCreatureModal" ).on('shown.bs.modal', () => {
+			this.focusEditCreature();
 		});
 		
 		/*this.newCreature.name = "test1";

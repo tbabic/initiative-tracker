@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<head>
+	<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" type="text/css" href="css/index.css"/>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/vue@2.5.16/dist/vue.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/4.4.0/font/octicons.css"/>
+	
+	
+	
+</head>
+<body>
+<div class="container" id="app" >
+	<div class="pb-2 mt-4 mb-2 border-bottom">
+		<div class ="row">
+			<div class ="col">
+					INITIATIVE
+			</div>
+			<div class = "col">
+				<button class="btn btn-primary" data-toggle="modal" data-target="#addCreatureModal" >+</button>
+			</div>
+		</div>
+	</div>
+
+	<div v-for="(initiative, initiativeIndex) in initiativeScores" class="row initiative border-top">
+		
+		<div class="col-2 col-md-1 border-right">
+			{{ initiative }}
+		</div>
+		
+		<div class="col" @dragover.prevent="preview($event, initiative)" @dragenter.prevent @dragleave="cancelPreview" @drop='onDrop($event, initiative)' v-on:click="logPosition">
+		
+			<div v-for="(creature, index) in combat.initiatives[initiative]" v-bind:data-index="index">
+				
+				<div v-if="index == '0'" class="row">
+					<div v-bind:class ="'col col-md-4 col-xl-2 m-1 preview ' + showPreview(initiative, '0')">
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class ="col col-md-4 col-xl-2 m-2">
+						<button draggable="true" class="btn btn-primary btn-initiative"  @dragstart='startDrag($event, initiative, index)'
+						 data-toggle="modal" data-target="#editCreatureModal" v-on:click="selectCreatureToEdit(index, initiative)" >
+							{{ creature.name }}
+						</button>
+						<button class="btn btn-danger" v-on:click="deleteCreature(initiative, index)" >
+							X
+						</button>
+					</div>
+					<div class ="col col-md-4 col-xl-2 m-2">	
+						<div class="input-group mb-2 mr-sm-2">
+							<div class="input-group-prepend">
+								<div class="input-group-text"><img src="/icons/bullseye.svg" alt="" title="suffered damage"></div>
+							</div>
+							<input type="number" class="form-control" id="inlineFormInputGroupUsername2" v-model="creature.damage">
+						</div>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div v-bind:class ="'col col-md-4 col-xl-2 m-1 preview ' + showPreview(initiative, index+1)">
+					</div>
+				</div>
+				
+				<div v-if="(initiativeIndex+1 >= initiativeScores.length && index+1 >= combat.initiatives[initiative].length)" class="last">
+				</div>
+			
+			</div>
+		</div>
+		
+	</div>
+	
+	<div class="modal fade" id="addCreatureModal" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">New creature</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Name</span>
+						</div>
+						<input v-model="newCreature.name" type="text" class="form-control">
+					</div>
+					
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Initiative</span>
+						</div>
+						<input v-model="newCreature.score" type="number" class="form-control">
+					</div>
+					
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Number</span>
+						</div>
+						<input v-model="newCreature.number" type="number" class="form-control">
+					</div>
+				
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="addCreature" >Add</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="editCreatureModal" role="dialog">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Edit creature</h5>
+					<button type="button" class="close" data-dismiss="modal">
+						<span>&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Name</span>
+						</div>
+						<input v-model="editCreature.name" type="text" class="form-control">
+					</div>
+					
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">Initiative</span>
+						</div>
+						<input v-model="editCreature.score" type="number" class="form-control">
+					</div>
+					
+					<div class="input-group mb-3">
+						<div class="input-group-prepend">
+							<span class="input-group-text">damage</span>
+						</div>
+						<input v-model="editCreature.damage" type="number" class="form-control">
+					</div>
+				
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal" v-on:click="saveEditCreature" >Save</button>
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+		
+</div>
+
+
+</body>
+
+<script src="js/common.js"></script>
+<script src="js/initiative-component.js"></script>
+
+
+</html>
+
+
+
+<!--
+<script type="text/javascript">
+	
+	function init() {
+	
+	}
+    window.onload = init();
+	
+</script>
+-->

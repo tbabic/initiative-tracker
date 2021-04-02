@@ -1,0 +1,26 @@
+
+.drop-zone {
+	height: 20px;
+	width : 100%;
+}
+
+.preview {
+
+}
+
+.preview.true {
+	background-color: rgb(160, 160, 160);
+}
+
+.preview.false {
+	background-color: white;
+}
+
+.btn-initiative {
+	background-color: gray !important;
+	border-color: gray !important;
+}
+
+.last {
+  	height: 100px;
+}

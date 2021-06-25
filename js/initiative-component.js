@@ -11,7 +11,8 @@ var homeComponent = new Vue({
 		newCreature : {
 			name : "",
 			score: 1,
-			number : 1
+			number : 1,
+			isPlayer : false,
 		},
 		
 		editCreature : {
@@ -19,6 +20,7 @@ var homeComponent = new Vue({
 			name : null,
 			score : null,
 			damage : null,
+			isPlayer : false,
 			oldScore : null,
 			oldIndex : null
 			
@@ -42,6 +44,7 @@ var homeComponent = new Vue({
 			let score = this.newCreature.score;
 			let name = this.newCreature.name;
 			let number = this.newCreature.number;
+			let isPlayer = this.newCreature.isPlayer;
 			
 			
 			if (initiatives[score] == undefined) {
@@ -52,13 +55,16 @@ var homeComponent = new Vue({
 				initiatives[score].push({
 					name : name,
 					damage : 0,
-					preview : false
+					isPlayer : isPlayer,
+					preview : false,
 				});
 			}
 			
 			this.newCreature.name = "";
 			this.newCreature.score= 1;
 			this.newCreature.number= 1;
+			this.newCreature.isPlayer = false;
+			this.persist();
 			
 		},
 		
@@ -69,6 +75,7 @@ var homeComponent = new Vue({
 			this.editCreature.damage = creature.damage;
 			this.editCreature.name = creature.name;
 			this.editCreature.score = initiativeScore;
+			this.editCreature.isPlayer = creature.isPlayer;
 			this.editCreature.oldScore = initiativeScore;
 			this.editCreature.oldIndex = index;
 		},
@@ -77,6 +84,7 @@ var homeComponent = new Vue({
 			
 			this.editCreature.reference.damage = this.editCreature.damage;
 			this.editCreature.reference.name = this.editCreature.name;
+			this.editCreature.reference.isPlayer = this.editCreature.isPlayer;
 			
 			if (this.editCreature.score != this.editCreature.oldScore) {
 				let initiatives = this.combat.initiatives;
@@ -97,7 +105,9 @@ var homeComponent = new Vue({
 			this.editCreature.reference= {};
 			this.editCreature.damage = null;
 			this.editCreature.name = null;
+			this.editCreature.isPlayer = false;
 			this.score = null;
+			this.persist();
 		},
 
 		startDrag : function (event, initiativeScore, creatureIndex) {
@@ -111,6 +121,96 @@ var homeComponent = new Vue({
 			if (this.combat.initiatives[initiativeScore].length < 1) {
 				Vue.delete(this.combat.initiatives, initiativeScore);
 			}
+			this.persist();
+		},
+		
+		deleteAll : function() {
+			for (score in this.combat.initiatives) {
+				Vue.delete(this.combat.initiatives, score);	
+			}
+			this.persist();
+		},
+		
+		deleteNPCs : function() {
+			for (score in this.combat.initiatives) {
+				for (i = this.combat.initiatives[score].length-1; i>= 0; i--) {
+					let creature = this.combat.initiatives[score][i];
+					if (!creature.isPlayer) {
+						this.combat.initiatives[score].splice(i, 1);
+					}
+				}
+				if (this.combat.initiatives[score].length <= 0) {
+					Vue.delete(this.combat.initiatives, score);	
+				}
+				
+			}
+			this.persist();
+		},
+		
+		resetAllToZero : function() {
+			let zeroInitiative = this.combat.initiatives[0];
+			if (zeroInitiative == undefined) {
+				zeroInitiative = [];
+				Vue.set(this.combat.initiatives, 0, zeroInitiative);
+			}
+			for (score in this.combat.initiatives) {
+				if (score == 0) {
+					continue;
+				}
+				for (i = this.combat.initiatives[score].length-1; i>= 0; i--) {
+					let creature = this.combat.initiatives[score][i];
+					this.combat.initiatives[score].splice(i, 1);
+					zeroInitiative.push(creature);
+					if (this.combat.initiatives[score].length <= 0) {
+						Vue.delete(this.combat.initiatives, score);	
+					}
+				}
+			}
+			
+			zeroInitiative.forEach(creature => {
+				creature.damage = 0;
+			});
+			
+			if(zeroInitiative.length == 0) {
+				Vue.delete(this.combat.initiatives, 0);
+			}
+			
+			this.persist();
+		},
+		
+		resetNPCsToZero : function() {
+			let zeroInitiative = this.combat.initiatives[0];
+			if (zeroInitiative == undefined) {
+				zeroInitiative = [];
+				Vue.set(this.combat.initiatives, 0, zeroInitiative);
+			}
+			for (score in this.combat.initiatives) {
+				if (score == 0) {
+					continue;
+				}
+				for (i = this.combat.initiatives[score].length-1; i>= 0; i--) {
+					let creature = this.combat.initiatives[score][i];
+					if (!creature.isPlayer) {
+						this.combat.initiatives[score].splice(i, 1);
+						zeroInitiative.push(creature);
+					}
+					if (this.combat.initiatives[score].length <= 0) {
+						Vue.delete(this.combat.initiatives, score);	
+					}
+				}
+			}
+			
+			zeroInitiative.forEach(creature => {
+				if (!creature.isPlayer) {
+					creature.damage = 0;
+				}
+			});
+			
+			if(zeroInitiative.length == 0) {
+				Vue.delete(this.combat.initiatives, 0);
+			}
+			
+			this.persist();
 		},
 		
 		preview : function(ev, initiativeScore) {
@@ -194,6 +294,7 @@ var homeComponent = new Vue({
 
 			this.dragAndDropData.source.initiativeScore = null;
 			this.dragAndDropData.source.creatureIndex = null;
+			this.persist();
 		},
 		enterPressedDown : function(ev) {
 			if (ev.shiftKey) {
@@ -223,6 +324,21 @@ var homeComponent = new Vue({
 		
 		closeNewCreature : function() {
 			$("#close-new-creature").click();
+		},
+		
+		persist : function() {
+			let value = JSON.stringify(this.combat.initiatives);
+			window.localStorage.setItem("initiatives", value);
+		},
+		
+		load : function() {
+			let value = window.localStorage.getItem("initiatives");
+			if (value == null || value == undefined) {
+				return;
+			}
+			let initiatives = JSON.parse(value);
+			this.combat.initiatives = initiatives;
+			
 		}
 	},
 	computed : {
@@ -246,6 +362,8 @@ var homeComponent = new Vue({
 		$( "#editCreatureModal" ).on('shown.bs.modal', () => {
 			this.focusEditCreature();
 		});
+		
+		this.load();
 		
 		/*this.newCreature.name = "test1";
 		this.addCreature();

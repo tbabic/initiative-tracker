@@ -19,11 +19,23 @@
 <div class="container" id="app" >
 	<div class="pb-2 mt-4 mb-2 border-bottom">
 		<div class ="row">
-			<div class ="col">
+			<div class ="col-2">
 					INITIATIVE
 			</div>
-			<div class = "col">
+			<div class = "col-3">
 				<button class="btn btn-primary" data-toggle="modal" data-target="#addCreatureModal">+</button>
+			</div>
+			<div class = "col">
+				<button class="btn btn-warning" v-on:click="resetNPCsToZero" alt="Reset all non players to 0 damage and initiative">Reset NPCs</button>
+			</div>
+			<div class = "col">
+				<button class="btn btn-warning" v-on:click="resetAllToZero" alt="Reset all creatures to 0 damage and initiative">Reset All</button>
+			</div>
+			<div class = "col">
+				<button class="btn btn-danger" v-on:click="deleteNPCs" alt="Delete all non players">Delete NPCs</button>
+			</div>
+			<div class = "col">
+				<button class="btn btn-danger" v-on:click="deleteAll" alt="Delete all creatures">Delete All</button>
 			</div>
 		</div>
 	</div>
@@ -58,7 +70,7 @@
 							<div class="input-group-prepend">
 								<div class="input-group-text"><img src="icons/bullseye.svg" alt="dmg" title="suffered damage"></div>
 							</div>
-							<input type="number" class="form-control" id="inlineFormInputGroupUsername2" v-model="creature.damage">
+							<input type="number" class="form-control" id="inlineFormInputGroupUsername2" v-model="creature.damage" v-on:change="persist">
 						</div>
 					</div>
 				</div>
@@ -106,6 +118,13 @@
 						</div>
 						<input v-model="newCreature.number" type="number" class="form-control" v-on:keydown.tab="focusNewCreature" >
 					</div>
+					
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" v-model="newCreature.isPlayer">
+						<label class="form-check-label">
+							Player Character
+						</label>
+					</div>
 				
 				</div>
 				<div class="modal-footer">
@@ -146,6 +165,13 @@
 							<span class="input-group-text">damage</span>
 						</div>
 						<input v-model="editCreature.damage" type="number" class="form-control" v-on:keydown.tab="focusEditCreature">
+					</div>
+					
+					<div class="form-check">
+						<input class="form-check-input" type="checkbox" v-model="editCreature.isPlayer">
+						<label class="form-check-label">
+							Player Character
+						</label>
 					</div>
 				
 				</div>
